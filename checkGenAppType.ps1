@@ -1,4 +1,3 @@
-
 try
 {
     # Création du point d'entrée au registre HKU (s'il n'existe pas)
@@ -20,7 +19,7 @@ try
         $fullGenapiKeyPath = $userEntry.Name + "\Software\GenApi"
         $fullGenapiKeyPath = $fullGenapiKeyPath.Replace("HKEY_USERS", "HKU:")
 
-        $fulliNotKeyPath = $fullGenapiKeyPath + "\iNot.client"
+        $fulliNotKeyPath = $fullGenapiKeyPath + "\iNot.Client"
 
         if($true -eq (Test-Path $fulliNotKeyPath ))
         {
@@ -31,9 +30,9 @@ try
                 $userName = "unknown_$userEntry"
             }
 
-            $valueUrlPro    =  Get-ItemProperty -Path $fulliNotKeyPath -Name UrlProtocol -ErrorAction SilentlyContinue
+            $valueUrlPro    =  Get-ItemProperty -Path $fullGenapiKeyPath -Name UrlProtocolForNextStart -ErrorAction SilentlyContinue
             $valueUrlActe   =  $(Get-ItemProperty -Path $fulliNotKeyPath -Name BaseUrl -ErrorAction SilentlyContinue)
-                if( ($valueUrlActe -ne $null) -or ($valueUrlActe.Length -gt 0) ) { $valueUrlActe = $valueUrlActe.BaseUrlInotActe}
+                if( ($valueUrlActe -ne $null) -or ($valueUrlActe.Length -gt 0) ) { $valueUrlActe = $valueUrlActe.BaseUrl}
 
             $valueUrlCompta =  $(Get-ItemProperty -Path $fullGenapiKeyPath -Name BaseUrlInotComptabilite -ErrorAction SilentlyContinue)
             if( ($valueUrlCompta -ne $null) -or ($valueUrlCompta.Length -gt 0) ) { $valueUrlCompta = $valueUrlCompta.BaseUrlInotComptabilite}
@@ -51,7 +50,7 @@ try
 
            if( ($valueUrlPro -ne $null) -or ($valueUrlPro.Length -gt 0) )
             {
-                $urlProtocolValue = $valueUrlPro.UrlProtocol
+                $urlProtocolValue = $valueUrlPro.UrlProtocolForNextStart
 
                 # si l'uri Scheme point vers un répertoire de l'app data, l'installation est en mode ClickOnce
                 if($urlProtocolValue.Contains("AppData"))
@@ -62,10 +61,13 @@ try
                 {
                     $results+= "$($userName):SAN" + $valueUrlActe + $valueUrlCompta + ";"
                 }
-            }# Fin If
+            }
+			# Fin If
        
-        }# Fin If
-    } # Fin ForEach
+        }
+		# Fin If
+    } 
+	# Fin ForEach
 
     if (![string]::IsNullOrEmpty($results)) {
         Write-Host  $results.TrimEnd(";")
@@ -80,5 +82,5 @@ try
 catch
 {
     Write-Host $_
-    exit 0
+   exit 0 
 }
